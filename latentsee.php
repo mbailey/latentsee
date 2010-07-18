@@ -6,9 +6,6 @@
 if ($bytes = (int)$_REQUEST['bytes']){
 
   // Return file of size $bytes
-  header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-  header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-  header("Connection: close");
   send_bytes($bytes);
 
 } else {
@@ -21,6 +18,9 @@ if ($bytes = (int)$_REQUEST['bytes']){
 // Functions
 
 function send_bytes($bytes) {
+  header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+  header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
+  if (! $_REQUEST['keepalive']) header("Connection: close") ;
   $header = "$bytes bytes\n";
   print $header;
   print str_repeat('x', $bytes - strlen($header));
@@ -28,7 +28,8 @@ function send_bytes($bytes) {
 
 function display_form() {
 
-  $sequence = "var sequence = '" . ($_REQUEST['sequence'] ? $_REQUEST['sequence'] : '9x1|9x10') . "';";
+  $seq= "var seq= '" . ($_REQUEST['seq'] ? $_REQUEST['seq'] : '9x1|9x10') . "';";
+  $keepalive = $_REQUEST['keepalive'] ? "'&keepalive=true'" : "''";
 
   print <<<EOH
 <!doctype html>
@@ -36,24 +37,48 @@ function display_form() {
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
 <title>LatentSee - Web Latency Visualizer</title>
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/redmond/jquery-ui.css" type="text/css" />
 <style>
 BODY { 
     font-family: "Trebuchet MS", "Bitstream Vera Serif", Utopia, "Times New Roman", times, serif;
 }
+h1 {text-align: center; display:block; margin-left: auto; width: 600px; margin-right: auto; color: blue;}
+div#info
+{
+        margin-left: auto;
+        margin-right: auto;
+        width: 600px;
+        background-color: lightgrey;
+}
+
+div#content
+{
+        width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+}
+
 </style>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
 </head>
+
 <body>
+
 <h1>LatentSee - Web Latency Visualizer</h1>
+
+<div id="info">
 <p>This page is requesting files from the server and timing how long it takes to get them. You should see a chart quite soon!</p>
 
 <p>If your browser gets impatient please tell it to wait.</p>
+</div>
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+<div id="content">
+
+</div>
 
 <script>
-
-$sequence
+$seq
 var gc_base_url = 'http://chart.apis.google.com/chart';
 var gc_args = {
     chxt: 'x,x,y,y',
@@ -73,31 +98,33 @@ function run() {
   prepareGcArgs();
   url = prepareURL();
   // alert(url);
-  document.write('<img src="' + url +'">');
+  $('#content').html('<img src="' + url +'">');
+  // document.write('<img src="' + url +'">');
 }
 
 // Functions
 
 function getFiles() {
+  // XXX get total number of files for progressbar
+  $('#content').html('<div id="progressbar"></div>');
+  $(function() { $("#progressbar").progressbar({ value: 0 }); });
   var cur_size = 0;
-  $.each(sequence.split('|'), function(junk, series) {
+  $.each(seq.split('|'), function(junk, series) {
     count_size = series.split('x');
     count = count_size[0];
     size = count_size[1];
     for (counter = 1; counter <= count; counter += 1) { 
       getFile(cur_size + counter * size); 
+      $("#progressbar").progressbar('value', $("#progressbar").progressbar('value') + 1);
     }
     cur_size += count * size;
   });
 
-  // for (bytes = 1000; bytes<=10000; bytes=bytes+1000) { getFile(bytes); }
-  // for (bytes = 11000; bytes<=100000; bytes=bytes+5000) { getFile(bytes); }
-  // for (bytes = 100000; bytes<=200000; bytes=bytes+10000) { getFile(bytes); }
 }
 
 function getFile(kb) {
   var start = new Date().getTime();
-  $.get('?bytes=' + (kb * 1024));
+  $.get('?bytes=' + (kb * 1024) + $keepalive);
   var elapsed = new Date().getTime() - start;
   arr_times.push(elapsed);
   arr_filesizes.push(kb);
@@ -123,8 +150,12 @@ Array.max = function( array ){
 Array.min = function( array ){
   return Math.min.apply( Math, array );
 };
-run();
+
+$(document).ready(function() {
+ run();
+});
 </script>
+
 </body></html>
 EOH;
 }
