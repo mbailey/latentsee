@@ -50,10 +50,37 @@ function send_bytes($bytes) {
   print str_repeat('x', $bytes - strlen($header));
 }
 
+function get_pulldowns($seq) {
+  if (strstr($seq, '|')) {
+    # No pulldowns if there's multiple series
+  } else {
+    list($count, $increment) = split('x', $seq);
+
+    $select_count = '<select name="count" id="count">';
+    foreach (Array(1,2,3,4,5,10,20,25,50,100) as $x) {
+      $selected = ( $x == $count ? 'selected="selected"' : '');
+      $select_count .= "<option $selected>$x</option>";
+    }
+    $select_count .= '</select>';
+
+    $select_increment = '<select name="increment" id="increment" >';
+    foreach (array_unique(array_merge(Array(1,2,3,4,5,10,20,25),Array($increment)), SORT_STRING) as $x) {
+      $selected = ($x == $increment ? 'selected="selected"' : '');
+      $select_increment .= "<option $selected>$x</option>";
+    }
+    $select_increment .= '</select>';
+    $pulldowns = "Retrieve $select_count files incrementing by $select_increment kilobytes.";
+    return $pulldowns;
+  }
+
+
+}
+
 function display_form() {
 
-  $seq= "var seq= '" . ($_REQUEST['seq'] ? $_REQUEST['seq'] : '9x1|9x10') . "';";
+  $seq = ($_REQUEST['seq'] ? $_REQUEST['seq'] : '25x1');
   $keepalive = $_REQUEST['keepalive'] ? "'&keepalive=true'" : "''";
+  $pulldowns = get_pulldowns($seq);
 
   print <<<EOH
 <!doctype html>
@@ -85,15 +112,22 @@ div#info
         // background-color: lightgrey;
 }
 
+div#controls
+{
+        text-align: center;
+        width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 40px;
+}
+
 div#content
 {
         text-align: center;
-        // padding: 10px;
         width: 670px;
         margin-left: auto;
         margin-right: auto;
         margin-top: 40px;
-        // border: solid 1px lightgrey;
 }
 
 div#footer
@@ -114,6 +148,7 @@ div#footer
    position: relative; 
    text-align: center; 
    zoom: 1; 
+   margin-top: 15px;
    }
 
 </style>
@@ -131,8 +166,14 @@ div#footer
 <p><a href="http://github.com/mbailey/latentsee">latentsee.php</a> is available under the <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a> and is being tested with <a href="http://www.mozilla.com/en-US/firefox/personal.html">Firefox</a> under linux and OSX. Just drop it on your Apache webserver (ensuring compression is disabled).</p>
 </div>
 
-<div id="content">
+<div id="controls" class="ui-corner-all">
+<form class="ui-state-default ui-corner-all">
+  $pulldowns
+</form>
 <button id="button" class="fg-button ui-state-default ui-corner-all" type="submit">Run Test!</button>
+</div>
+
+<div id="content">
 </div>
 
 <div id="footer">
@@ -140,7 +181,7 @@ Copyright (c) 2010 <a href="http://mike.bailey.net.au/blog">Mike Bailey</a> &lt;
 </div>
 
 <script>
-$seq
+var seq='$seq';
 var gc_base_url = 'http://chart.apis.google.com/chart';
 var gc_args = {
     chxt: 'x,x,y,y',
@@ -167,19 +208,25 @@ function run() {
 // Functions
 
 function getSeqs() {
+  seqs = [];
   total_files = 0;
+  if ($("#count").val()) {
+    seq = $("#count").val() + 'x' + $("#increment").val();
+  }
   $.each(seq.split('|'), function(junk, series) {
-    count_interval = series.split('x');
-    seqs.push(count_interval);
-    total_files += parseFloat(count_interval[0]);
+    count_increment = series.split('x');
+    seqs.push(count_increment);
+    total_files += parseFloat(count_increment[0]);
   });
 }
 
 function getFiles() {
   // XXX get total number of files for progressbar
+  arr_filesizes = [];
+  arr_times = [];
+  getSeqs();
   $('#content').html('<div id="progressbar"></div>');
   $(function() { $("#progressbar").progressbar({ value: 0 }); });
-  getSeqs();
   progressbar_step = 100 / total_files;
   var cur_size = 0;
   $.each(seqs, function(junk, series) {
