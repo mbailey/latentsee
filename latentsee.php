@@ -1,6 +1,30 @@
 <?php
 
-// file.php - send a file or run a HTTP performance test
+/**
+
+latentsee.php 0.1 (http://latentsee.com/)
+
+Web based HTTP performance visualizer
+
+LatentSee downloads a series of differently sized files and plots
+the retrieval times. It can also be used to generate a single file
+of a specified bytesize.
+
+Be sure to compression is disabled on the webserver.
+LatentSee is currently only being tested with Firefox on Linux/OSX. YMMV.
+
+  GET /latentsee.php           #=> plot request times for a series of files
+  GET /latentsee.php?bytes=100 #=> returns file 100 bytes in length
+
+* Play with demo version: http://latentsee.com
+* Download: http://github.com/mbailey/latentsee
+* Share and discuss results on Facebook: http://bit.ly/c4WUKv
+
+* Copyright (c) 2010 Mike Bailey <mike@bailey.net.au>
+
+* The MIT License http://creativecommons.org/licenses/MIT/
+
+**/
 
 // If the number of bytes to return is specified
 if ($bytes = (int)$_REQUEST['bytes']){
@@ -91,33 +115,43 @@ var gc_args = {
 var arr_filesizes = []; // Filesizes from tests
 var arr_times = []; // Retrieval times for files
 $.ajaxSetup({async: false, cache: false });
+var seqs = [];
+var total_files;
 
 function run() {
   getFiles();
-  // alert(arr_filesizes + ',' + arr_times);
   prepareGcArgs();
   url = prepareURL();
-  // alert(url);
   $('#content').html('<img src="' + url +'">');
   // document.write('<img src="' + url +'">');
 }
 
 // Functions
 
+function getSeqs() {
+  total_files = 0;
+  $.each(seq.split('|'), function(junk, series) {
+    count_interval = series.split('x');
+    seqs.push(count_interval);
+    total_files += parseFloat(count_interval[0]);
+  });
+}
+
 function getFiles() {
   // XXX get total number of files for progressbar
   $('#content').html('<div id="progressbar"></div>');
   $(function() { $("#progressbar").progressbar({ value: 0 }); });
+  getSeqs();
+  progressbar_step = 100 / total_files;
   var cur_size = 0;
-  $.each(seq.split('|'), function(junk, series) {
-    count_size = series.split('x');
-    count = count_size[0];
-    size = count_size[1];
+  $.each(seqs, function(junk, series) {
+    count = series[0];
+    increment = series[1];
     for (counter = 1; counter <= count; counter += 1) { 
-      getFile(cur_size + counter * size); 
-      $("#progressbar").progressbar('value', $("#progressbar").progressbar('value') + 1);
+      getFile(cur_size + counter * increment); 
+      $("#progressbar").progressbar('value', $("#progressbar").progressbar('value') + progressbar_step);
     }
-    cur_size += count * size;
+    cur_size += count * increment;
   });
 
 }
