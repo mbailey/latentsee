@@ -96,6 +96,15 @@ div#content
         // border: solid 1px lightgrey;
 }
 
+div#footer
+{
+        text-align: center;
+	width: 100%;
+        position: fixed;
+        bottom: 0;
+   	text-align: center; 
+}
+
 .fg-button { 
    outline: 0; 
    margin:0 4px 0 0; 
@@ -124,6 +133,10 @@ div#content
 
 <div id="content">
 <button id="button" class="fg-button ui-state-default ui-corner-all" type="submit">Run Test!</button>
+</div>
+
+<div id="footer">
+Copyright (c) 2010 <a href="http://mike.bailey.net.au/blog">Mike Bailey</a> &lt;mike@bailey.net.au&gt;
 </div>
 
 <script>
