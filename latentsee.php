@@ -4,7 +4,7 @@
 
 latentsee.php 0.1 (http://latentsee.com/)
 
-Web based HTTP performance visualizer
+Web Based HTTP Performance Visualizer
 
 LatentSee downloads a series of differently sized files and plots
 the retrieval times. It can also be used to generate a single file
@@ -60,27 +60,52 @@ function display_form() {
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
-<title>LatentSee - Web Latency Visualizer</title>
+<title>LatentSee - HTTP Performance Visualizer</title>
 <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/redmond/jquery-ui.css" type="text/css" />
 <style>
 BODY { 
     font-family: "Trebuchet MS", "Bitstream Vera Serif", Utopia, "Times New Roman", times, serif;
 }
-h1 {text-align: center; display:block; margin-left: auto; width: 600px; margin-right: auto; color: blue;}
+
+h1 {
+  text-align: center; 
+  display:block; 
+  margin-left: auto; 
+  width: 670px; 
+  margin-right: auto; 
+  color: blue;
+}
+
 div#info
 {
+        // padding: 1px 7px;
         margin-left: auto;
         margin-right: auto;
-        width: 600px;
-        background-color: lightgrey;
+        width: 670px;
+        // background-color: lightgrey;
 }
 
 div#content
 {
-        width: 600px;
+        text-align: center;
+        // padding: 10px;
+        width: 670px;
         margin-left: auto;
         margin-right: auto;
+        margin-top: 40px;
+        // border: solid 1px lightgrey;
 }
+
+.fg-button { 
+   outline: 0; 
+   margin:0 4px 0 0; 
+   padding: .4em 1em; 
+   text-decoration:none !important; 
+   cursor:pointer; 
+   position: relative; 
+   text-align: center; 
+   zoom: 1; 
+   }
 
 </style>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
@@ -89,16 +114,16 @@ div#content
 
 <body>
 
-<h1>LatentSee - Web Latency Visualizer</h1>
+<h1>LatentSee - HTTP Performance Visualizer</h1>
 
 <div id="info">
-<p>This page is requesting files from the server and timing how long it takes to get them. You should see a chart quite soon!</p>
+<p>LatentSee plots the time taken to retrieve a series of files from a webserver. One of its uses is to test the impact of latency on HTTP performance.</p>
 
-<p>If your browser gets impatient please tell it to wait.</p>
+<p><a href="http://github.com/mbailey/latentsee">latentsee.php</a> is available under the <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a> and is being tested with <a href="http://www.mozilla.com/en-US/firefox/personal.html">Firefox</a> under linux and OSX. Just drop it on your Apache webserver (ensuring compression is disabled).</p>
 </div>
 
 <div id="content">
-
+<button id="button" class="fg-button ui-state-default ui-corner-all" type="submit">Run Test!</button>
 </div>
 
 <script>
@@ -185,9 +210,19 @@ Array.min = function( array ){
   return Math.min.apply( Math, array );
 };
 
-$(document).ready(function() {
+$("#button").hover(
+	function(){ 
+		$(this).addClass("ui-state-hover"); 
+	},
+	function(){ 
+		$(this).removeClass("ui-state-hover"); 
+	}
+)
+
+$("#button").click(function() {
  run();
 });
+
 </script>
 
 </body></html>
