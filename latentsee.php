@@ -64,7 +64,7 @@ function get_pulldowns($seq) {
     $select_count .= '</select>';
 
     $select_increment = '<select name="increment" id="increment" >';
-    foreach (array_unique(array_merge(Array(1,2,3,4,5,10,20,25),Array($increment)), SORT_STRING) as $x) {
+    foreach (array_unique(array_merge(Array(1,2,3,4,5,10),Array($increment)) ) as $x) {
       $selected = ($x == $increment ? 'selected="selected"' : '');
       $select_increment .= "<option $selected>$x</option>";
     }
