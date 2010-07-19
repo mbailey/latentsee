@@ -163,7 +163,7 @@ div#footer
 <div id="info">
 <p>LatentSee plots the time taken to retrieve a series of files from a webserver. Interestingly the relationship is often nonlinear, due in part to <a href="http://www.stevesouders.com/blog/2010/07/13/velocity-tcp-and-the-lower-bound-of-web-performance/">TCP Congestion Control and Delayed ACK</a>.</p>
 
-<p>Many web users outside of the US wait too long for pages to load because of site owners choosing cheaper offshore hosting options. I wrote latentsee to investigate the impact of this and was surprised by the results. I decided to make latentsee freely available in the interests of speeding up the web.</p>
+<p>Web users outside of the US often wait too long for pages to load because site owners have chosen cheaper offshore hosting options. I wrote latentsee to investigate the impact of this and was surprised by the results. I decided to make latentsee freely available in the interests of speeding up the web.</p>
 
 <p>
 <a href="http://www.mozilla.com/en-US/firefox/personal.html">Firefox</a> only (for now!) |
