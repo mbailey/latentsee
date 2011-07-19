@@ -10,7 +10,11 @@ LatentSee downloads a series of differently sized files and plots
 the retrieval times. It can also be used to generate a single file
 of a specified bytesize.
 
-Be sure to compression is disabled on the webserver.
+Be sure to compression is disabled on the webserver. You can put this into
+a .htaccess file or use a <Directory> directive in apache config.
+
+    BrowserMatch . no-gzip
+
 LatentSee is currently only being tested with Firefox on Linux/OSX. YMMV.
 
   GET /latentsee.php           #=> plot request times for a series of files
@@ -78,7 +82,7 @@ function get_pulldowns($seq) {
 
 function display_form() {
 
-  $seq = ($_REQUEST['seq'] ? $_REQUEST['seq'] : '25x1');
+  $seq = ($_REQUEST['seq'] ? $_REQUEST['seq'] : '10x10');
   $keepalive = $_REQUEST['keepalive'] ? "'&keepalive=true'" : "''";
   $pulldowns = get_pulldowns($seq);
 
