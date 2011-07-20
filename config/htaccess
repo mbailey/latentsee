@@ -1,0 +1,9 @@
+# .htaccess
+#
+# latentsee needs compression turned off
+# put this in the directory containing latentsee.php
+#
+# Or add this directive to your Apache configs
+#
+DirectoryIndex latentsee.php
+BrowserMatch ^. no-gzip
